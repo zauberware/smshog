@@ -1,0 +1,9 @@
+services:
+  smshog:
+    build:
+      context: .
+      dockerfile: Dockerfile.combined
+    ports:
+      - "${PORT:-8080}:80"
+    environment:
+      - NODE_ENV=production
