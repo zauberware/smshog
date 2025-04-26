@@ -1,5 +1,5 @@
 # Stage 1: Build Backend
-FROM node:18-alpine AS backend-build
+FROM node:slim AS backend-build
 
 WORKDIR /app/backend
 
@@ -12,7 +12,7 @@ COPY backend/ ./
 RUN npm run build || echo "Backend build failed, check build script"
 
 # Stage 2: Build Frontend
-FROM node:18-alpine AS frontend-build
+FROM node:slim AS frontend-build
 
 WORKDIR /app/frontend
 
