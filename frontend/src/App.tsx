@@ -62,9 +62,12 @@ function App() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="md:col-span-1 flex flex-col">
+          <div className="md:col-span-1 flex flex-col h-full">
             <h2 className="text-lg font-medium mb-3">Messages</h2>
-            <div className="h-[600px] overflow-y-auto">
+            <div
+              className="overflow-auto flex-1"
+              style={{ maxHeight: 'calc(100vh - 200px)' }}
+            >
               <SMSList
                 messages={messages || []}
                 onSelect={setSelectedMessage}

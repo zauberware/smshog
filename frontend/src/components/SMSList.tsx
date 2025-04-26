@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import React from 'react';
 import { SMS } from '../types';
 
 interface SMSListProps {
@@ -7,18 +7,22 @@ interface SMSListProps {
   selectedId: string | null;
 }
 
-const SMSList: FC<SMSListProps> = ({ messages, onSelect, selectedId }) => {
+const SMSList: React.FC<SMSListProps> = ({
+  messages,
+  onSelect,
+  selectedId,
+}) => {
   if (messages.length === 0) {
     return (
-      <div className="bg-gray-50 p-6 rounded-lg text-center text-gray-500">
+      <div className="bg-gray-50 p-6 rounded-lg text-center text-gray-500 h-full">
         No SMS messages yet. Use AWS SDK to send messages.
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-lg shadow overflow-hidden h-full">
-      <ul className="divide-y divide-gray-200">
+    <div className="bg-white rounded-lg shadow overflow-hidden flex-1">
+      <ul className="divide-y divide-gray-200 h-full">
         {messages.map((message) => (
           <li
             key={message.id}
