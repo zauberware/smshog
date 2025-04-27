@@ -96,6 +96,25 @@ SMSHog consists of two main components:
 1. **Backend**: Node.js/Express server with TypeScript that implements the AWS SNS mock API
 2. **Frontend**: React with TypeScript and Vite for displaying and managing SMS messages
 
+## Data Persistence
+
+By default, SMSHog stores all messages in memory, which means they'll be lost when the server restarts.
+To enable data persistence, set the following environment variables:
+
+```bash
+# Enable persistence
+SMSHOG_PERSIST=true
+
+# Optional: Specify a custom path for the data file (default: ./data/sms-store.json)
+SMSHOG_PERSIST_PATH=/path/to/your/data/file.json
+```
+
+When using Docker, you can enable persistence by:
+
+```bash
+docker run -e SMSHOG_PERSIST=true -v $(pwd)/data:/app/backend/data smshog
+```
+
 ## License
 
 MIT
