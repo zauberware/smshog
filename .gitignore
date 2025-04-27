@@ -55,3 +55,4 @@ bundle-stats.json
 # Temporary files
 tmp/
 temp/
+data/
