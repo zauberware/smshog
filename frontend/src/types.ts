@@ -8,6 +8,7 @@ export interface SMS {
     requestId?: string;
     clientIp?: string;
     userAgent?: string;
+    senderId?: string;
   };
 }
 

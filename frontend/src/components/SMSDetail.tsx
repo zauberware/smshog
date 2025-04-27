@@ -29,9 +29,18 @@ const SMSDetail: FC<SMSDetailProps> = ({ message, onDelete }) => {
 
       <div className="p-4">
         <div className="mb-4">
-          <h3 className="text-sm font-medium text-gray-500">Phone Number</h3>
+          <h3 className="text-sm font-medium text-gray-500">
+            Recipient Phone Number
+          </h3>
           <p className="mt-1">{message.phoneNumber}</p>
         </div>
+
+        {message.metadata?.senderId && (
+          <div className="mb-4">
+            <h3 className="text-sm font-medium text-gray-500">Sender</h3>
+            <p className="mt-1 font-semibold">{message.metadata.senderId}</p>
+          </div>
+        )}
 
         <div className="mb-4">
           <h3 className="text-sm font-medium text-gray-500">Timestamp</h3>
