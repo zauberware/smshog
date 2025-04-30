@@ -1,0 +1,58 @@
+# Node.js
+node_modules
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Build artifacts
+dist
+build
+*.tsbuildinfo
+
+# Environment
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# Development tools
+.git
+.github
+.gitignore
+.vscode
+*.md
+LICENSE
+*.log
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Data persistence
+data/
+
+# Docker specific
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# Test files
+**/test
+**/tests
+**/*.test.ts
+**/*.spec.ts
+coverage/
+
+# Backend specific
+backend/node_modules
+backend/dist
+
+# Frontend specific  
+frontend/node_modules
+frontend/dist
+frontend/build
+
+# Cache
+.npm
+.cache

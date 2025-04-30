@@ -1,21 +1,15 @@
-version: '3.8'
-
 services:
-  backend:
+  smshog:
+    # image: zauberware/smshog:latest
     build:
       context: .
-      dockerfile: Dockerfile.backend
+      dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - "${PORT:-8080}:80"
     environment:
-      - NODE_ENV=production
-      - PORT=3000
-
-  frontend:
-    build:
-      context: .
-      dockerfile: Dockerfile.frontend
-    ports:
-      - "8080:80"
-    depends_on:
-      - backend
+      - NODE_ENV=production 
+    env_file:
+      - .env
+    volumes:
+      - ./data:/data:rw
+      

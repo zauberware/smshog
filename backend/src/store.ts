@@ -15,7 +15,7 @@ class SMSStore {
     // Initialize persistence if enabled
     if (process.env.SMSHOG_PERSIST === 'true') {
       this.enablePersistence(
-        process.env.SMSHOG_PERSIST_PATH || './data/sms-store.json'
+        process.env.SMSHOG_PERSIST_PATH || '/data/sms-store.json'
       );
     }
   }

@@ -1,0 +1,17 @@
+node_modules
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+dist
+build
+.env
+.env.local
+.git
+.github
+.vscode
+coverage
+**/*.test.tsx
+**/*.spec.tsx
+**/__tests__
+.DS_Store
+Thumbs.db

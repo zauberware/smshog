@@ -1,7 +1,7 @@
 {
   "name": "smshog",
   "version": "1.0.0",
-  "description": "AWS SNS SMS Mock and Display Tool",
+  "description": "A mock server and UI for AWS SNS SMS, inspired by MailHog",
   "main": "index.js",
   "private": true,
   "scripts": {
@@ -10,8 +10,22 @@
     "start:combined": "docker build -f Dockerfile.combined -t smshog-combined . && docker run -p 8080:80 smshog-combined",
     "install:all": "yarn install && (cd backend && yarn install) && (cd frontend && yarn install)"
   },
-  "author": "",
+  "author": "Florian Crusius <florian@zauberware.com>",
   "license": "MIT",
+  "contributors": [
+    {
+      "name": "Florian Crusius",
+      "email": "florian@zauberware.com"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zauberware/smshog.git"
+  },
+  "bugs": {
+    "url": "https://github.com/zauberware/smshog/issues"
+  },
+  "homepage": "https://github.com/zauberware/smshog#readme",
   "workspaces": [
     "backend",
     "frontend"

@@ -55,4 +55,5 @@ bundle-stats.json
 # Temporary files
 tmp/
 temp/
-data/
+data/*
+!data/.gitkeep

@@ -4,25 +4,55 @@ services:
   backend:
     build:
       context: .
-      dockerfile: Dockerfile.backend
+      dockerfile: Dockerfile.dev
+      target: backend-dev
     ports:
-      - "3000:3000"
+      - "${BACKEND_PORT:-3000}:3000"
     environment:
       - NODE_ENV=development
-      - PORT=3000
+      - CHOKIDAR_USEPOLLING=true  # Enable polling for file watching
+      - CHOKIDAR_INTERVAL=1000    # Set polling interval
+    env_file:
+      - .env
     volumes:
-      - ./backend/src:/app/src
+      - ./backend:/app/backend
+      - ./data:/data:rw  # Mount data directory for persistence
+      - /app/backend/node_modules  # Don't override node_modules
+    # Hot reload for development
     command: npm run dev
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"] # Simpler health check
+      interval: 5s 
+      timeout: 2s 
+      retries: 3
+      start_period: 5s 
+    networks:
+      - smshog-network
 
   frontend:
-    image: node:18-alpine
-    working_dir: /app
-    volumes:
-      - ./frontend:/app
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      target: frontend-dev
     ports:
-      - "8080:8080"
+      - "${FRONTEND_PORT:-8080}:8080"
     environment:
       - NODE_ENV=development
-    command: sh -c "npm install && npm run dev"
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true  
+    env_file:
+      - .env
+    volumes:
+      - ./frontend:/app/frontend
+      - /app/frontend/node_modules  # Don't override node_modules
+    # Hot reload for development
+    command: npm run dev -- --host 0.0.0.0
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
+    networks:
+      - smshog-network
+
+networks:
+  smshog-network:
+    driver: bridge

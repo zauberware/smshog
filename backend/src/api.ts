@@ -2,8 +2,11 @@ import { Router, Request, Response } from 'express';
 import { smsStore } from './store';
 import { ApiResponse } from './types';
 import { getSMSAttributes } from './sns-mock';
+import { handleHealthCheck } from './health';
 
 const router = Router();
+
+router.get('/health', handleHealthCheck);
 
 // Get all SMS messages
 router.get('/sms', (req: Request, res: Response) => {
