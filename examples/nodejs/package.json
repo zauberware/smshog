@@ -1,0 +1,18 @@
+{
+  "name": "smshog-nodejs-example",
+  "version": "1.0.0",
+  "description": "Example of using SMSHog with Node.js",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "dependencies": {
+    "@aws-sdk/client-sns": "^3.398.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22"
+  },
+  "license": "MIT"
+}

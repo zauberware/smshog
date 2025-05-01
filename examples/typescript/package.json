@@ -1,0 +1,20 @@
+{
+  "name": "smshog-typescript-example",
+  "version": "1.0.0",
+  "description": "Example of using SMSHog with TypeScript",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "node dist/index.js",
+    "dev": "ts-node-dev --respawn --transpile-only --ignore-watch node_modules --no-notify index.ts",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@aws-sdk/client-sns": "^3.398.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.4.3",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.1.6"
+  },
+  "license": "MIT"
+}
