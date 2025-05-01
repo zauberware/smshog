@@ -75,12 +75,16 @@ docker compose -f docker-compose.dev.yml up
 Example of how to use SMSHog with the AWS SDK v3:
 
 ```javascript
-import { SNSClient, PublishCommand } from '@aws-sdk/client-sns';
+import {
+  SNSClient,
+  PublishCommand,
+  SetSMSAttributesCommand,
+} from '@aws-sdk/client-sns';
 
 // Configure the SNS client to use the local SMSHog server
 const snsClient = new SNSClient({
   region: 'us-east-1',
-  endpoint: 'http://localhost:3000',
+  endpoint: 'https://localhost:8080', // SMSHog endpoint
   credentials: {
     accessKeyId: 'dummy-access-key',
     secretAccessKey: 'dummy-secret-key',
@@ -90,11 +94,20 @@ const snsClient = new SNSClient({
 // Send an SMS
 async function sendSMS() {
   const params = {
-    Message: 'Hello from SMSHog!',
-    PhoneNumber: '+1234567890',
+    Message: 'Hello from Javascript!',
+    PhoneNumber: '+491234567890', // Replace with the recipient's phone number
   };
 
   try {
+    await snsClient.send(
+      new SetSMSAttributesCommand({
+        attributes: {
+          DefaultSenderID: 'MySenderId',
+          DefaultSMSType: 'Transactional',
+          UsageReportS3Bucket: 'my-s3-bucket',
+        },
+      })
+    );
     const data = await snsClient.send(new PublishCommand(params));
     console.log('Success! Message ID:', data.MessageId);
   } catch (err) {
@@ -104,6 +117,8 @@ async function sendSMS() {
 
 sendSMS();
 ```
+
+further example usage can be found in the [examples](./examples) directory.
 
 ## API Endpoints
 
