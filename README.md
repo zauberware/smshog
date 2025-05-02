@@ -2,6 +2,8 @@
 
 SMSHog mocks the AWS SNS SMS API, allowing clients (using aws-sdk v3) to send SMS via the SNS Publish route to SMSHog. The mock API stores these SMS messages and displays them through a MailHog-like web interface.
 
+![SMSHog](media/demo.png)
+
 ## Features
 
 - Mock AWS SNS SMS API with support for the Publish and SetSMSAttributes actions
