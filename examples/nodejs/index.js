@@ -7,7 +7,7 @@ import {
 // Configure the SNS client to use the local SMSHog server
 const snsClient = new SNSClient({
   region: 'us-east-1',
-  endpoint: 'https://localhost:8080', // SMSHog endpoint
+  endpoint: 'http://localhost:8080', // SMSHog endpoint
   credentials: {
     accessKeyId: 'dummy-access-key',
     secretAccessKey: 'dummy-secret-key',

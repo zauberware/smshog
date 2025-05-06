@@ -5,7 +5,7 @@ require 'aws-sdk-sns'
 # Configure the SNS client to use the SMSHog server
 sns = Aws::SNS::Client.new(
   region: 'us-east-1',
-  endpoint: 'http://smshog.irrenzentrale.de',
+  endpoint: 'http://localhost:8080',
   credentials: Aws::Credentials.new(
     'dummy-access-key',
     'dummy-secret-key'
