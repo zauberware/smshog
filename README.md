@@ -29,13 +29,13 @@ While developing and testing applications that send SMS using **AWS SNS SMS**, w
 To run SMSHog using Docker, you can use the following command:
 
 ```bash
-docker run  -p 8080:8080 zauberware/smshog
+docker run -p 8080:80 zauberware/smshog
 ```
 
 This command will:
 
 - Pull the latest SMSHog image from Docker Hub
-- Map port 8080 of the container to port 8080 on your host machine
+- Map port 80 of the container to port 8080 on your host machine
 - Start the SMSHog server
 - Access the web UI at http://localhost:8080
 
@@ -50,27 +50,41 @@ git clone git@github.com:zauberware/smshog.git
 cd smshog
 ```
 
-2. Copy the `.env.example` file to `.env` and adjust the settings as needed.
+2. Copy the `.env.sample` file to `.env` and adjust the settings as needed.
 
 ```bash
-cp .env.example .env
+cp .env.sample .env
 ```
 
-2. Start the application:
+3. Start the application:
 
 ```bash
-docker compose up
+docker compose up --build
 ```
 
-3. Access the web UI at http://localhost:8080
+4. Access the web UI at http://localhost:8080
 
 #### Development Mode
 
 For development with hot-reloading:
 
 ```bash
-docker compose -f docker-compose.dev.yml up
+docker compose -f docker-compose.dev.yml up --build
 ```
+
+The frontend is then served on `FRONTEND_PORT` and the backend on `BACKEND_PORT` (see `.env`).
+
+To work without Docker:
+
+```bash
+yarn install
+yarn build   # compile backend and frontend
+yarn test    # run the backend tests
+```
+
+### Security
+
+SMSHog is a development tool. It has no authentication, allows requests from any origin and lets anyone who can reach it read and delete the captured messages. Run it on your machine or inside a private network only, and do not expose it to the internet.
 
 ## Using with AWS SDK
 
@@ -86,7 +100,7 @@ import {
 // Configure the SNS client to use the local SMSHog server
 const snsClient = new SNSClient({
   region: 'us-east-1',
-  endpoint: 'https://localhost:8080', // SMSHog endpoint
+  endpoint: 'http://localhost:8080', // SMSHog endpoint
   credentials: {
     accessKeyId: 'dummy-access-key',
     secretAccessKey: 'dummy-secret-key',
@@ -126,7 +140,11 @@ further example usage can be found in the [examples](./examples) directory.
 
 ### SNS Mock API
 
-- `POST /` or `POST /sms` - Handle SNS Publish requests
+- `POST /` or `POST /sms` - Handle SNS requests (`Publish` and `SetSMSAttributes`)
+
+`Publish` only supports sending to a `PhoneNumber`. Requests that target a `TopicArn` or `TargetArn` are answered with `InvalidParameter`.
+
+The message attributes `AWS.SNS.SMS.SenderID` and `AWS.SNS.SMS.SMSType` override the defaults set through `SetSMSAttributes` for a single message.
 
 ### REST API
 
@@ -156,10 +174,12 @@ SMSHOG_PERSIST=true
 SMSHOG_PERSIST_PATH=/path/to/your/data/file.json
 ```
 
+If the data file cannot be read on startup, it is kept next to the original as `<file>.corrupt-<timestamp>` and SMSHog starts with an empty list.
+
 When using Docker, you can enable persistence by:
 
 ```bash
-docker run -e SMSHOG_PERSIST=true -v $(pwd)/data:/data smshog
+docker run -p 8080:80 -e SMSHOG_PERSIST=true -v $(pwd)/data:/data zauberware/smshog
 ```
 
 ## Environment Variables
@@ -168,6 +188,7 @@ docker run -e SMSHOG_PERSIST=true -v $(pwd)/data:/data smshog
 | ------------------- | ------------------------------------- | -------------------- |
 | SMSHOG_PERSIST      | Enable data persistence (true/false)  | false                |
 | SMSHOG_PERSIST_PATH | Path to the data file for persistence | /data/sms-store.json |
+| SMSHOG_MAX_MESSAGES | Keep only the newest N messages       | unlimited            |
 
 ## License
 
