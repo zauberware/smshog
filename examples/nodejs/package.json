@@ -6,13 +6,10 @@
   "main": "dist/index.js",
   "scripts": {
     "start": "node index.js",
-    "dev": "nodemon index.js"
+    "dev": "node --watch index.js"
   },
   "dependencies": {
     "@aws-sdk/client-sns": "^3.398.0"
-  },
-  "devDependencies": {
-    "nodemon": "^3.1.14"
   },
   "license": "MIT"
 }
