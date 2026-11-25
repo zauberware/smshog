@@ -20,7 +20,13 @@ RUN yarn install --frozen-lockfile
 COPY backend/ backend/
 COPY frontend/ frontend/
 
-RUN yarn workspace smshog-backend build && yarn workspace smshog-frontend build
+# Shown in the footer of the UI; declared this late so that changing them
+# does not invalidate the dependency layer
+ARG APP_VERSION=
+ARG BUILD_ID=dev
+
+RUN yarn workspace smshog-backend build \
+    && APP_VERSION=$APP_VERSION BUILD_ID=$BUILD_ID yarn workspace smshog-frontend build
 
 # Stage 2: production dependencies only
 FROM base AS prod-deps

@@ -94,7 +94,7 @@ The image builds for `linux/amd64` and `linux/arm64`:
 docker buildx build --platform linux/amd64,linux/arm64 -t zauberware/smshog:<version> .
 ```
 
-Add `--push` to publish it. Building both platforms needs a Docker setup with the containerd image store or a `docker-container` buildx builder.
+Pass `--build-arg BUILD_ID=$(git rev-parse --short HEAD)` to show the commit in the footer of the UI (`yarn start` does this for you). Add `--push` to publish it. Building both platforms needs a Docker setup with the containerd image store or a `docker-container` buildx builder.
 
 ## Using with AWS SDK
 

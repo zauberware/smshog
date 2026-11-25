@@ -1,9 +1,23 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import { readFileSync } from 'node:fs';
+
+// The version shown in the UI is the one of the root package.json unless the
+// build passes APP_VERSION (the release workflow passes the git tag).
+// BUILD_ID is the commit the build was made from.
+const rootPackage = JSON.parse(
+  readFileSync(new URL('../package.json', import.meta.url), 'utf8')
+);
+const appVersion = process.env.APP_VERSION || rootPackage.version;
+const buildId = (process.env.BUILD_ID || 'dev').slice(0, 7);
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
+  define: {
+    __APP_VERSION__: JSON.stringify(appVersion),
+    __BUILD_ID__: JSON.stringify(buildId),
+  },
   server: {
     port: 8080,
     host: '0.0.0.0', // Listen on all network interfaces
