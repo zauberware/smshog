@@ -1,5 +1,8 @@
-# The node image no longer ships yarn, the lockfile is a yarn 1 lockfile
-FROM node:26-alpine AS base
+# The node image no longer ships yarn, the lockfile is a yarn 1 lockfile.
+# The build stages run on the build machine's own architecture: their output
+# (compiled JS and pure-JS dependencies) is the same for every target
+# platform, so only the final stage has to be built per platform.
+FROM --platform=$BUILDPLATFORM node:26-alpine AS base
 
 RUN npm install -g yarn@1.22.22
 

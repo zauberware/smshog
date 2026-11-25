@@ -86,6 +86,16 @@ yarn test    # run the backend tests
 
 SMSHog is a development tool. It has no authentication, allows requests from any origin and lets anyone who can reach it read and delete the captured messages. Run it on your machine or inside a private network only, and do not expose it to the internet.
 
+### Building the image
+
+The image builds for `linux/amd64` and `linux/arm64`:
+
+```bash
+docker buildx build --platform linux/amd64,linux/arm64 -t zauberware/smshog:<version> .
+```
+
+Add `--push` to publish it. Building both platforms needs a Docker setup with the containerd image store or a `docker-container` buildx builder.
+
 ## Using with AWS SDK
 
 Example of how to use SMSHog with the AWS SDK v3:
