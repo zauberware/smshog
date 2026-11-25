@@ -4,6 +4,11 @@ import { getAllSMS, deleteSMS, deleteAllSMS } from './api';
 import SMSList from './components/SMSList';
 import SMSDetail from './components/SMSDetail';
 
+// Both panels share one height and scroll on their own. On small screens the
+// panels are stacked, so the height is only an upper limit there.
+const PANEL_HEIGHT =
+  'max-h-[calc(100vh-200px)] md:h-[calc(100vh-200px)]';
+
 function App() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const queryClient = useQueryClient();
@@ -79,12 +84,9 @@ function App() {
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="md:col-span-1 flex flex-col h-full">
+          <div className="md:col-span-1">
             <h2 className="text-lg font-medium mb-3">Messages</h2>
-            <div
-              className="overflow-auto flex-1"
-              style={{ maxHeight: 'calc(100vh - 200px)' }}
-            >
+            <div className={`overflow-auto ${PANEL_HEIGHT}`}>
               <SMSList
                 messages={messages || []}
                 onSelect={(message) => setSelectedId(message.id)}
@@ -95,10 +97,12 @@ function App() {
 
           <div className="md:col-span-2">
             <h2 className="text-lg font-medium mb-3">Details</h2>
-            <SMSDetail
-              message={selectedMessage}
-              onDelete={(id) => deleteMutation.mutate(id)}
-            />
+            <div className={PANEL_HEIGHT}>
+              <SMSDetail
+                message={selectedMessage}
+                onDelete={(id) => deleteMutation.mutate(id)}
+              />
+            </div>
           </div>
         </div>
       </div>
