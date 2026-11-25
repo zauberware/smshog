@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Security
+
+- Updated the dependencies of the Node.js and TypeScript examples, which resolves the advisories reported for their lockfiles.
+
 ## [1.1.0] - 2026-11-25
 
 ### Added

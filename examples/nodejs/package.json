@@ -12,7 +12,7 @@
     "@aws-sdk/client-sns": "^3.398.0"
   },
   "devDependencies": {
-    "nodemon": "^2.0.22"
+    "nodemon": "^3.1.14"
   },
   "license": "MIT"
 }
