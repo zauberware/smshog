@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-11-25
+
 ### Added
 
 - Image for `linux/arm64` in addition to `linux/amd64`.
@@ -14,7 +16,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Version and build in the footer of the web UI.
 - Container health check; `GET /health` is answered by the backend.
 - Examples for Node.js, TypeScript and Ruby in `examples/`.
-- Backend tests, a CI workflow and a release workflow that publishes the image when a `vX.Y.Z` tag is pushed.
+- Backend tests, a CI workflow and a release workflow. Pushing a `vX.Y.Z` tag publishes the image as `X.Y.Z`, `X.Y` and `latest` and creates a GitHub release from the matching section of this file.
+- This changelog.
 
 ### Changed
 
@@ -48,5 +51,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Optional persistence of messages to a JSON file (`SMSHOG_PERSIST`, `SMSHOG_PERSIST_PATH`).
 - Docker image `zauberware/smshog` and Docker Compose setups for production and development.
 
-[Unreleased]: https://github.com/zauberware/smshog/compare/842e832...HEAD
+[Unreleased]: https://github.com/zauberware/smshog/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/zauberware/smshog/compare/842e832...v1.1.0
 [1.0.0]: https://github.com/zauberware/smshog/tree/842e832
