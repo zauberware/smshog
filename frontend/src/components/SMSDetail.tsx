@@ -16,8 +16,8 @@ const SMSDetail: FC<SMSDetailProps> = ({ message, onDelete }) => {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow overflow-hidden">
-      <div className="p-4 border-b border-gray-200 flex justify-between items-center">
+    <div className="bg-white rounded-lg shadow overflow-hidden flex flex-col max-h-full">
+      <div className="p-4 border-b border-gray-200 flex justify-between items-center shrink-0">
         <h2 className="text-lg font-medium">Message Details</h2>
         <button
           onClick={() => onDelete(message.id)}
@@ -27,7 +27,7 @@ const SMSDetail: FC<SMSDetailProps> = ({ message, onDelete }) => {
         </button>
       </div>
 
-      <div className="p-4">
+      <div className="p-4 overflow-auto">
         <div className="mb-4">
           <h3 className="text-sm font-medium text-gray-500">
             Recipient Phone Number

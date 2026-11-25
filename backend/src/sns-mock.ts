@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { smsStore } from './store';
-import { SNSPublishParams, SNSAttributes } from './types';
+import { MessageAttributeValue, SNSAttributes } from './types';
 import { Builder } from 'xml2js';
 
 // Store for SMS attributes
@@ -60,15 +60,17 @@ export function handleSNSRequest(req: Request, res: Response) {
 function handlePublish(req: Request, res: Response, useXml: boolean) {
   try {
     // Extract parameters either from query or body
-    const params: SNSPublishParams = {
-      PhoneNumber: req.query.PhoneNumber?.toString() || req.body.PhoneNumber,
-      Message: req.query.Message?.toString() || req.body.Message,
-      MessageAttributes:
-        req.query.MessageAttributes || req.body.MessageAttributes,
-    };
+    const input: Record<string, unknown> = { ...req.query, ...req.body };
+    const phoneNumber = input.PhoneNumber;
+    const message = input.Message;
 
     // Validate required parameters
-    if (!params.PhoneNumber || !params.Message) {
+    if (
+      typeof phoneNumber !== 'string' ||
+      typeof message !== 'string' ||
+      !phoneNumber ||
+      !message
+    ) {
       return sendResponse(
         res,
         {
@@ -76,7 +78,8 @@ function handlePublish(req: Request, res: Response, useXml: boolean) {
             Error: {
               Type: 'Sender',
               Code: 'InvalidParameter',
-              Message: 'Missing required parameter PhoneNumber or Message',
+              Message:
+                'PhoneNumber and Message are required and must be strings',
             },
             RequestId: '00000000-0000-0000-0000-000000000000',
           },
@@ -86,18 +89,25 @@ function handlePublish(req: Request, res: Response, useXml: boolean) {
       );
     }
 
-    // Store the SMS
+    const messageAttributes = parseMessageAttributes(input);
+
+    // Store the SMS. Per-message attributes win over the account defaults,
+    // as they do on AWS.
     const sms = smsStore.addSMS({
-      phoneNumber: params.PhoneNumber,
-      message: params.Message,
-      messageAttributes: params.MessageAttributes,
+      phoneNumber,
+      message,
+      messageAttributes,
       timestamp: new Date(),
       metadata: {
         requestId: '00000000-0000-0000-0000-000000000000',
         clientIp: req.ip,
         userAgent: req.get('user-agent'),
-        smsType: smsAttributes.DefaultSMSType,
-        senderId: smsAttributes.DefaultSenderID,
+        smsType:
+          messageAttributes?.['AWS.SNS.SMS.SMSType']?.StringValue ||
+          smsAttributes.DefaultSMSType,
+        senderId:
+          messageAttributes?.['AWS.SNS.SMS.SenderID']?.StringValue ||
+          smsAttributes.DefaultSenderID,
       },
     });
 
@@ -144,27 +154,20 @@ function handleSetSMSAttributes(req: Request, res: Response, useXml: boolean) {
     // attributes.entry.1.key, attributes.entry.1.value, etc.
     const body = req.body;
 
-    // Extract and process attributes
-    const attributeEntries: Record<string, string> = {};
-
-    // Find all attribute keys in the request
+    // Find all attribute keys in the request and update the known ones
     Object.keys(body).forEach((key) => {
       if (key.startsWith('attributes.entry.') && key.endsWith('.key')) {
         const entryNum = key.split('.')[2];
-        const valueKey = `attributes.entry.${entryNum}.value`;
         const attrKey = body[key];
-        const attrValue = body[valueKey];
+        const attrValue = body[`attributes.entry.${entryNum}.value`];
 
-        if (attrKey && attrValue) {
-          attributeEntries[attrKey] = attrValue;
+        if (
+          typeof attrKey === 'string' &&
+          typeof attrValue === 'string' &&
+          Object.prototype.hasOwnProperty.call(smsAttributes, attrKey)
+        ) {
+          smsAttributes[attrKey] = attrValue;
         }
-      }
-    });
-
-    // Update the SMS attributes
-    Object.keys(attributeEntries).forEach((key) => {
-      if (key in smsAttributes) {
-        smsAttributes[key as keyof SNSAttributes] = attributeEntries[key];
       }
     });
 
@@ -202,6 +205,56 @@ function handleSetSMSAttributes(req: Request, res: Response, useXml: boolean) {
       useXml
     );
   }
+}
+
+/**
+ * Collect message attributes. The AWS SDKs send them in the flattened query
+ * protocol (MessageAttributes.entry.N.Name / .Value.DataType / ...); a nested
+ * MessageAttributes object is accepted as well for hand-written JSON requests.
+ */
+function parseMessageAttributes(
+  input: Record<string, unknown>
+): Record<string, MessageAttributeValue> | undefined {
+  const attributes: Record<string, MessageAttributeValue> = Object.create(null);
+
+  const nested = input.MessageAttributes;
+  if (nested && typeof nested === 'object' && !Array.isArray(nested)) {
+    for (const [name, value] of Object.entries(nested)) {
+      if (value && typeof value === 'object' && !Array.isArray(value)) {
+        attributes[name] = pickAttributeValue(value as Record<string, unknown>);
+      }
+    }
+  }
+
+  const prefix = 'MessageAttributes.entry.';
+  for (const key of Object.keys(input)) {
+    if (!key.startsWith(prefix) || !key.endsWith('.Name')) continue;
+
+    const entry = key.slice(0, -'.Name'.length);
+    const name = input[key];
+    if (typeof name !== 'string' || !name) continue;
+
+    attributes[name] = pickAttributeValue({
+      DataType: input[`${entry}.Value.DataType`],
+      StringValue: input[`${entry}.Value.StringValue`],
+      BinaryValue: input[`${entry}.Value.BinaryValue`],
+    });
+  }
+
+  return Object.keys(attributes).length > 0 ? { ...attributes } : undefined;
+}
+
+function pickAttributeValue(
+  value: Record<string, unknown>
+): MessageAttributeValue {
+  const result: MessageAttributeValue = {};
+  for (const field of ['DataType', 'StringValue', 'BinaryValue'] as const) {
+    const fieldValue = value[field];
+    if (typeof fieldValue === 'string') {
+      result[field] = fieldValue;
+    }
+  }
+  return result;
 }
 
 // Helper function to send either XML or JSON response

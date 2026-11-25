@@ -3,20 +3,20 @@ export interface SMS {
   phoneNumber: string;
   message: string;
   timestamp: Date;
-  messageAttributes?: Record<string, any>;
+  messageAttributes?: Record<string, MessageAttributeValue>;
   metadata?: {
     requestId?: string;
     clientIp?: string;
     userAgent?: string;
-    senderId?: string; // Add this property
-    smsType?: string; // Add this property
+    senderId?: string;
+    smsType?: string;
   };
 }
 
-export interface SNSPublishParams {
-  PhoneNumber: string;
-  Message: string;
-  MessageAttributes?: Record<string, any>;
+export interface MessageAttributeValue {
+  DataType?: string;
+  StringValue?: string;
+  BinaryValue?: string;
 }
 
 export interface SNSAttributes {

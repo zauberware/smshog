@@ -1,63 +1,62 @@
-# Stage 1: Build Backend
-FROM node:slim AS backend-build
+# The node image no longer ships yarn, the lockfile is a yarn 1 lockfile.
+# The build stages run on the build machine's own architecture: their output
+# (compiled JS and pure-JS dependencies) is the same for every target
+# platform, so only the final stage has to be built per platform.
+FROM --platform=$BUILDPLATFORM node:26-alpine AS base
 
-WORKDIR /app/backend
+RUN npm install -g yarn@1.22.22
 
-COPY backend/package*.json ./
+# Stage 1: install the workspace from the lockfile and build both packages
+FROM base AS build
 
-RUN npm install && npm install -g typescript
+WORKDIR /app
 
-COPY backend/ ./
+COPY package.json yarn.lock ./
+COPY backend/package.json backend/
+COPY frontend/package.json frontend/
 
-RUN npm run build || echo "Backend build failed, check build script"
+RUN yarn install --frozen-lockfile
 
-# Stage 2: Build Frontend
-FROM node:slim AS frontend-build
+COPY backend/ backend/
+COPY frontend/ frontend/
 
-WORKDIR /app/frontend
+# Shown in the footer of the UI; declared this late so that changing them
+# does not invalidate the dependency layer
+ARG APP_VERSION=
+ARG BUILD_ID=dev
 
-COPY frontend/package*.json ./
+RUN yarn workspace smshog-backend build \
+    && APP_VERSION=$APP_VERSION BUILD_ID=$BUILD_ID yarn workspace smshog-frontend build
 
-RUN npm install && npm install -g typescript vite
+# Stage 2: production dependencies only
+FROM base AS prod-deps
 
-COPY frontend/ ./
+WORKDIR /app
 
-RUN npm run build || (npx tsc && npx vite build)
+COPY package.json yarn.lock ./
+COPY backend/package.json backend/
+COPY frontend/package.json frontend/
 
-# Stage 3: Final image with Nginx and Node
-FROM nginx:alpine
+RUN yarn install --frozen-lockfile --production
 
-# Install Node.js
-RUN apk add --update nodejs npm supervisor
+# Stage 3: final image with nginx and Node
+FROM nginx:1.30-alpine
 
-# Copy nginx configuration
+RUN apk add --no-cache nodejs supervisor
+
 COPY nginx/nginx.conf /etc/nginx/conf.d/default.conf
-
-
-# Copy frontend build
-COPY --from=frontend-build /app/frontend/dist /usr/share/nginx/html
-
-# Create directory for backend
-RUN mkdir -p /app/backend
-
-# Copy backend build
-COPY --from=backend-build /app/backend/dist /app/backend/dist
-COPY --from=backend-build /app/backend/package*.json /app/backend/
-
-# Install production dependencies for backend
-WORKDIR /app/backend
-RUN npm install --production
-
-# Create supervisor configuration
-RUN mkdir -p /etc/supervisor/conf.d/
 COPY supervisord/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-COPY supervisord/start.sh /start.sh
-RUN chmod +x /start.sh
-# Create start script
 
+COPY --from=build /app/frontend/dist /usr/share/nginx/html
+COPY --from=build /app/backend/dist /app/backend/dist
+COPY --from=prod-deps /app/node_modules /app/node_modules
+
+WORKDIR /app/backend
 
 EXPOSE 80
-EXPOSE 3000
-# Start Nginx and Node.js using Supervisor
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD wget -q -O /dev/null http://127.0.0.1/api/v1/health || exit 1
+
+# Start nginx and the backend using Supervisor
 CMD ["supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
-# CMD ["/start.sh"]

@@ -1,14 +1,13 @@
 {
   "name": "smshog",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "A mock server and UI for AWS SNS SMS, inspired by MailHog",
-  "main": "index.js",
   "private": true,
   "scripts": {
-    "start": "docker compose up",
-    "start:dev": "docker compose -f docker-compose.yml -f docker-compose.dev.yml up",
-    "start:combined": "docker build -f Dockerfile.combined -t smshog-combined . && docker run -p 8080:80 smshog-combined",
-    "install:all": "yarn install && (cd backend && yarn install) && (cd frontend && yarn install)"
+    "start": "BUILD_ID=$(git rev-parse --short HEAD) docker compose up --build",
+    "start:dev": "docker compose -f docker-compose.dev.yml up --build",
+    "build": "yarn workspace smshog-backend build && yarn workspace smshog-frontend build",
+    "test": "yarn workspace smshog-backend test"
   },
   "author": "Florian Crusius <florian@zauberware.com>",
   "license": "MIT",

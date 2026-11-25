@@ -4,6 +4,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        BUILD_ID: ${BUILD_ID:-dev}
     ports:
       - "${PORT:-8080}:80"
     environment:
